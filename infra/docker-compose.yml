@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: aireceptionist
+      POSTGRES_PASSWORD: aireceptionist
+      POSTGRES_DB: aireceptionist
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ../backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/aireceptionist
+      SPRING_DATASOURCE_USERNAME: aireceptionist
+      SPRING_DATASOURCE_PASSWORD: aireceptionist
+      APP_JWT_SECRET: change-me-in-prod-change-me-in-prod
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ../frontend
+    environment:
+      NEXT_PUBLIC_API_BASE: http://backend:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
